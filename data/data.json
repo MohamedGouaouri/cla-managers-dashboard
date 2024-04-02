@@ -6,7 +6,9 @@
       "category": "Strings",
       "description": "### Problem Statement:\nWrite a function that checks whether a given string is a palindrome or not. A palindrome is a word, phrase, number, or other sequence of characters that reads the same forward and backward.",
       "level": "Easy",
-      "code": {},
+      "code": {
+        "function_name": "palindrome"
+      },
       "tests": [],
       "createdAt": "2024-04-02"
     },

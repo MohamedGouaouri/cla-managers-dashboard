@@ -14,6 +14,9 @@ import { FaPlus } from "react-icons/fa6";
 import { CiTrash } from "react-icons/ci";
 import CreateChallengeButton from './CreateChallengeButton';
 import { CreateChallengeSchema } from '@/app/validation/challenge';
+import { useSelector } from 'react-redux';
+import LanguageMenu from './LanguageMenu';
+import FontSizeMenu from './FontMenue';
 
 interface ChallengeFormData {
   _id: string;
@@ -50,11 +53,13 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
     resolver: zodResolver(CreateChallengeSchema),
   });
 
+  const language = useSelector((state: any) => state.ui.language)
+  const fontSize = useSelector((state: any) => state.ui.fontSize)
   const [challengeDescription, setDescription] = useState(challenge?.description);
   const [functionName, setFunctionName] = useState(challenge?.code?.function_name);
-  const [language, setLanguage] = useState('py')
-  const [code, setCode] = useState(challenge?.code?.code_text.find((ct: any) => ct.language == language).text)
-  const [tests, setTests] = useState<Array<ITestCase>>(challenge?.tests.map((test: any) => ({...test, ...test.inputs[0]})))
+  // TODO: add language dropdown
+  const [code, setCode] = useState(challenge?.code?.code_text ? challenge?.code?.code_text.find((ct: any) => ct.language == language).text : '')
+  const [tests, setTests] = useState<Array<ITestCase>>(challenge?.tests ? challenge?.tests.map((test: any) => ({...test, ...test.inputs[0]})) : [])
 
   const onChange = useCallback((value: string) => {
     setDescription(value);
@@ -122,8 +127,10 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
       
       <form 
         onSubmit={onSubmit}
-        className="space-y-3 grid gap-2 md:grid-cols-2 h-full">
+        className="space-y-3 grid gap-2 md:grid-cols-2 h-full relative">
+          
         <div className='md:col-span-1'>
+          
           <div className="space-y-1">
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
               Title <span className='text-red-500'>*</span>
@@ -202,15 +209,23 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
           </div>
 
           <div >
-              <label htmlFor="code_text" className="block text-sm font-medium text-gray-700">
-                Code <span className='text-red-500'>*</span>
-              </label>
+              
+              <div className='flex justify-between items-center'>
+                <label htmlFor="code_text" className="block text-sm font-medium text-gray-700">
+                  Code <span className='text-red-500'>*</span>
+                </label>
+                <div className='flex gap-2'>
+                  <LanguageMenu />
+                  <FontSizeMenu />
+                </div>
+              </div>
               <div className='my-2 border border-gray-300 max-h-[300px] overflow-scroll'>
                 <CodeMirror 
                   value={code}
                   extensions={language == 'py' ? [python()] : [javascript()]}
                   className='min-h-[150px]'
                   onChange={(value: string) => setCode(value)}
+                  style={{fontSize: `${fontSize}px`, height: '100%'}}
                 />
               {/* {errors.code?.code_text && <span className='text-red-500'>{errors.code?.code_text?.message}</span>} */}
               </div>
@@ -219,7 +234,7 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
             <div className='flex justify-between'>
               <div>Tests <span className='text-red-500'>*</span></div>
               <div 
-                className='flex items-center justify-center bg-main text-white rounded p-2 cursor-pointer'
+                className='flex items-center justify-center bg-violet-600 text-white rounded p-2 cursor-pointer'
                 onClick={() => onAddTestCase()}
                 
               ><FaPlus /></div>
@@ -231,7 +246,7 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
             </div>
           </div>
           <CreateChallengeButton 
-            className='ml-auto' 
+            className='ml-auto absolute top-1 right-0' 
             type='submit'
             isEdit={isEdit}
           />

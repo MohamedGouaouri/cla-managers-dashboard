@@ -1,8 +1,6 @@
-import NavBar from '@/app/NavBar';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { getSession } from './auth/auth';
 import { StoreProvider } from './redux/StoreProvider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
