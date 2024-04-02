@@ -1,0 +1,13 @@
+{
+  "challenges": [
+    {
+      "id": "3",
+      "title": "Binary Search",
+      "category": "Algorithms",
+      "description": "### Problem Statement:\nThis challenge involves implementing the binary search algorithm to efficiently find the position of a target value within a sorted array. The algorithm compares the target value to the middle element of the array and continues narrowing down the search until the target value is found or the search space is empty.",
+      "level": "Moderate",
+      "code": {},
+      "tests": []
+    }
+  ]
+}
