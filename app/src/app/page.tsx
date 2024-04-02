@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import NavBar from './NavBar';
 
 export const getChallenges = async () => {
-  const res = await axios.get('http://localhost:3000//api/challenges/');
+  const res = await axios.get('http://localhost:8080/api/challenges/');
   return res.data;
 }
 
@@ -16,8 +16,9 @@ export default async function Home() {
   if (!authSession) {
     return redirect('/auth/signin')
   }
-  let challenges = await getChallenges()
-  return (
+  try {
+    let challenges = await getChallenges()
+    return (
       <div className='h-full w-full overflow-scroll'>
         <NavBar />
         <h1 className='text-3xl font-bold p-2'>Your challenges</h1>
@@ -27,6 +28,10 @@ export default async function Home() {
         <ChallengesList challenges={challenges}/>
       </div>
   );
+  } catch (error) {
+    return <div>Could not load data</div>
+  }
+  
 }
 
 export const metadata: Metadata = {

@@ -3,31 +3,42 @@ import Link from 'next/link';
 
 import { Button } from "@/components/ui/button"
 import { SheetTrigger, SheetContent, Sheet } from "@/components/ui/sheet"
+import { useDispatch } from 'react-redux';
+import { logoutAction } from './redux/slices/auth.slice';
+import { useRouter } from 'next/navigation';
 
 function NavBar() {
+  const dispatch = useDispatch()
+  const router = useRouter()
+  const handleLogout = () => {
+    dispatch(logoutAction())
+    router.replace('/auth/signin')
+  }
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-slate-200 shadow-md dark:bg-gray-800">
       <Link className="flex items-center gap-2" href="#">
         <span className="text-lg font-semibold">Challenges</span>
       </Link>
       <div className="hidden md:flex gap-4">
-        <Link 
-          className="text-lg font-medium bg-textViolet text-white hover:bg-white border hover:text-textViolet" href="#">
-          <Button>Logout</Button>
-        </Link>
+          <Button
+            onClick={handleLogout}
+            className="text-lg font-medium bg-textViolet text-white hover:bg-white border hover:text-textViolet"
+          >Logout</Button>
       </div>
       <Sheet>
         <SheetTrigger asChild>
-          <Button className="lg:hidden" size="icon" variant="outline">
+          <Button className="md:hidden" size="icon" variant="outline">
             <MenuIcon className="h-6 w-6" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
           <div className="grid w-[200px] p-4">
-            <Link className="text-lg font-medium hover:underline underline-offset-4" href="#">
+            <Button 
+              onClick={handleLogout}
+              className="text-lg font-medium hover:underline underline-offset-4">
               Logout
-            </Link>
+            </Button>
           </div>
         </SheetContent>
       </Sheet>

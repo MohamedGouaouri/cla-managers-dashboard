@@ -9,8 +9,8 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginAction } from "@/app/redux/slices/auth.slice";
 import CircularProgress from '@mui/material/CircularProgress';
-import delay from "delay";
 import { redirect, useRouter } from "next/navigation";
+import axios from "axios";
 
 const SigninPage = () => {
   
@@ -35,10 +35,7 @@ const SigninPage = () => {
     })
     try{
       
-      // TODO: Call auth service
-      // const loginResult = await axios.get()
-      await delay(2000)
-      const loginResult = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0QHRlc3QuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.j7o5o8GBkybaYXdFJIi8O6mPF50E-gJWZ3reLfMQD68'
+      const loginResult = await axios.post('/api/auth/login', data)
       if(!loginResult) {
         return setStatus({
           error: 'Error happened while signin',
@@ -49,7 +46,7 @@ const SigninPage = () => {
         error: null,
         isLoading: false,
       })
-      dispatch(loginAction(loginResult))
+      dispatch(loginAction(loginResult.data.token))
       router.replace('/')
     } catch(error: any) {
       console.log(error)
@@ -63,7 +60,12 @@ const SigninPage = () => {
     
     <div className="flex flex-col h-screen md:flex-row">
       <div className="w-full md:w-1/2  h-full text-black bg-bgMainDark flex items-center justify-center">
-
+          <img
+          src="https://media.discordapp.net/attachments/998279800416387122/1224775320247210016/coding.png?ex=661eb7e7&is=660c42e7&hm=729184d92eb24686cc28c2719f30f3a2299bb43145c21c6c58ab9da64f19212e&=&format=webp&quality=lossless&width=600&height=600"
+          width={500}
+          height={500}
+          alt="coder"
+        />
       </div>
       <div className="w-full md:w-1/2 bg-gray-100 flex items-center justify-center">
         <form

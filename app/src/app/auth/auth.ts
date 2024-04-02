@@ -30,16 +30,14 @@ export async function logout() {
 }
 
 export async function getSession() {
-    return true
-    // const session = cookies().get('session')?.value
-    // console.log('SESSION', session)
-    // if(!session) return null
-    // try {
-    //     const decoded = jwt.decode(session)
-    //     console.log(decoded)
-    //     return decoded
-    // } catch (error) {
-    //     console.log(error)
-    //     return null
-    // }
+    const session = cookies().get('session')?.value
+    if(!session) return null
+    try {
+        const decoded = jwt.decode(session)
+        console.log(decoded)
+        return decoded
+    } catch (error) {
+        console.log(error)
+        return null
+    }
 }

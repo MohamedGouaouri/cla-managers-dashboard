@@ -11,11 +11,16 @@ export const authSlice = createSlice({
     loginAction: (state, action) => {
         state.session = action.payload
         Cookies.set('session', action.payload, {secure: true, expires: new Date(Date.now() + 10*1000)})
+    },
+    logoutAction: (state) => {
+      state.session = '',
+      Cookies.remove('session')
+      console.log(state.session)
     }
   },
   
 })
 
-export const {loginAction} = authSlice.actions
+export const {loginAction, logoutAction} = authSlice.actions
 
 export default authSlice

@@ -24,18 +24,17 @@ const SigninPage = () => {
   return (
     <div className="flex flex-col h-screen md:flex-row">
       <div className="w-full md:w-1/2  h-full bg-bgMainDark flex items-center justify-center">
-        {/* <img
-          className="max-w-xs mx-auto"
-          src={codeImage}
-          alt="App Image"
-          height={300}
-          width={300}
-        /> */}
+      <img
+          src="https://media.discordapp.net/attachments/998279800416387122/1224775320247210016/coding.png?ex=661eb7e7&is=660c42e7&hm=729184d92eb24686cc28c2719f30f3a2299bb43145c21c6c58ab9da64f19212e&=&format=webp&quality=lossless&width=600&height=600"
+          width={500}
+          height={500}
+          alt="coder"
+        />
       </div>
       <div className="w-full md:w-1/2 bg-gray-100 flex items-center justify-center">
         <form
           onSubmit={onSubmit}
-          className="w-full max-h-3/4 max-w-md p-8 bg-white rounded shadow-md"
+          className="w-full max-h-3/4 max-w-md p-8 rounded shadow-md"
         >
           <h2 className="text-2xl font-semibold mb-8 text-textPrimary">Join Managers Now!</h2>
 
@@ -43,7 +42,7 @@ const SigninPage = () => {
             <input
               type="text"
               placeholder="First name"
-              className="py-3 px-4 block w-full text-white bg-mainBody border-gray-200 rounded-lg text-sm"
+              className="py-3 px-4 block w-full  bg-mainBody border-gray-200 rounded-lg text-sm"
               {...register('first_name')}
               />
               {errors.first_name && <span className="text-red-500">{errors.first_name?.message}</span>}
@@ -52,7 +51,7 @@ const SigninPage = () => {
             <input
               type="text"
               placeholder="Last name"
-              className="py-3 px-4 block w-full text-white bg-mainBody border-gray-200 rounded-lg text-sm"
+              className="py-3 px-4 block w-full  bg-mainBody border-gray-200 rounded-lg text-sm"
               {...register('last_name')}
               />
               {errors.last_name && <span className="text-red-500">{errors.last_name?.message}</span>}
@@ -61,7 +60,7 @@ const SigninPage = () => {
             <input
               type="email"
               placeholder="Email"
-              className="py-3 px-4 block w-full text-white bg-mainBody border-gray-200 rounded-lg text-sm"
+              className="py-3 px-4 block w-full bg-mainBody border-gray-200 rounded-lg text-sm"
               {...register('email')}
               />
               {errors.email && <span className="text-red-500">{errors.email?.message}</span>}
@@ -70,7 +69,7 @@ const SigninPage = () => {
             <input
               type="password"
               placeholder="Password"
-              className="py-3 px-4 block w-full text-white bg-mainBody border-gray-200 rounded-lg text-sm"
+              className="py-3 px-4 block w-full  bg-mainBody border-gray-200 rounded-lg text-sm"
               {...register('password')}
             />
             {errors.password && <span className="text-red-500">{errors.password?.message}</span>}
