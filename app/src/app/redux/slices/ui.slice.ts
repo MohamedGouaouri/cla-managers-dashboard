@@ -5,6 +5,7 @@ export const uiSlice = createSlice({
     initialState: {
         fontSize: 16,
         language: 'js',
+        alert: null
     },
     reducers: {
         changeFontSizeAction: (state, action) => {
@@ -13,10 +14,16 @@ export const uiSlice = createSlice({
         changeLanguageAction: (state, action) => {
             state.language = action.payload && action.payload.language && ['py', 'js'].includes(action.payload.language) ? action.payload.language : 'js'
         },
+        alertAction: (state, action) => {
+            state.alert = action.payload
+        },
+        dismissAlertAction: (state, action) => {
+            state.alert = null
+        }
     }
   
 })
 
-export const {changeFontSizeAction, changeLanguageAction} = uiSlice.actions
+export const {changeFontSizeAction, changeLanguageAction, alertAction, dismissAlertAction} = uiSlice.actions
 
 export default uiSlice

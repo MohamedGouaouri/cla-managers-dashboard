@@ -5,12 +5,12 @@ import { useForm } from "react-hook-form";
 import { LoginFormData } from "../auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/app/validation/auth";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useDispatch } from "react-redux";
 import { loginAction } from "@/app/redux/slices/auth.slice";
 import CircularProgress from '@mui/material/CircularProgress';
-import { redirect, useRouter } from "next/navigation";
-import axios from "axios";
+import { useRouter } from "next/navigation";
+import { login } from "../actions/actions";
 
 const SigninPage = () => {
   
@@ -27,16 +27,16 @@ const SigninPage = () => {
     error: null,
     isLoading: false
   })
+  const [isPending, startTransition] = useTransition()
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data)
     setStatus({
       error: null,
       isLoading: true,
     })
     try{
-      
-      const loginResult = await axios.post('/api/auth/login', data)
-      if(!loginResult) {
+      const loginResult = await login(data)
+      console.log(loginResult)
+      if(loginResult.status == 'error') {
         return setStatus({
           error: 'Error happened while signin',
           isLoading: false,
@@ -46,8 +46,8 @@ const SigninPage = () => {
         error: null,
         isLoading: false,
       })
-      dispatch(loginAction(loginResult.data.token))
-      router.replace('/')
+      dispatch(loginAction(loginResult.token))
+      router.push('/')
     } catch(error: any) {
       console.log(error)
       return setStatus({
@@ -69,7 +69,7 @@ const SigninPage = () => {
       </div>
       <div className="w-full md:w-1/2 bg-gray-100 flex items-center justify-center">
         <form
-          onSubmit={onSubmit}
+          onSubmit={(data) => startTransition(() => onSubmit(data))}
           className="w-full max-h-3/4 max-w-md p-8 rounded shadow-md"
         >
           <h2 className="text-2xl font-semibold mb-8 text-textPrimary">Join Managers Now!</h2>

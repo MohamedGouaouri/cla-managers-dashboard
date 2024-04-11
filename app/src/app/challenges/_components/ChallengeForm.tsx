@@ -7,16 +7,19 @@ import {javascript} from '@codemirror/lang-javascript'
 import {python} from '@codemirror/lang-python'
 import 'easymde/dist/easymde.min.css';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useCallback, useRef, useState, useTransition } from 'react';
+import { useForm, useFormContext } from 'react-hook-form';
 import { SimpleMdeReact } from 'react-simplemde-editor';
 import { FaPlus } from "react-icons/fa6";
 import { CiTrash } from "react-icons/ci";
 import CreateChallengeButton from './CreateChallengeButton';
 import { CreateChallengeSchema } from '@/app/validation/challenge';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import LanguageMenu from './LanguageMenu';
 import FontSizeMenu from './FontMenue';
+import { submitChallenge } from '../actions/actions';
+import { alertAction } from '@/app/redux/slices/ui.slice';
+import { CodeCLAlert } from './Alerts';
 
 interface ChallengeFormData {
   _id: string;
@@ -24,8 +27,9 @@ interface ChallengeFormData {
   category: string;
   level: 'Easy' | 'Moderate' | 'Hard';
   description?: string;
+  function_name: string;
   code?: any,
-  tests?: any
+  tests?: ITestCase[]
 }
 
 
@@ -48,6 +52,8 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<ChallengeFormData>({
     resolver: zodResolver(CreateChallengeSchema),
@@ -57,16 +63,31 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
   const fontSize = useSelector((state: any) => state.ui.fontSize)
   const [challengeDescription, setDescription] = useState(challenge?.description);
   const [functionName, setFunctionName] = useState(challenge?.code?.function_name);
-  // TODO: add language dropdown
   const [code, setCode] = useState(challenge?.code?.code_text ? challenge?.code?.code_text.find((ct: any) => ct.language == language).text : '')
   const [tests, setTests] = useState<Array<ITestCase>>(challenge?.tests ? challenge?.tests.map((test: any) => ({...test, ...test.inputs[0]})) : [])
-
-  const onChange = useCallback((value: string) => {
+  const [isPending, startTransition] = useTransition()
+  const dispatch = useDispatch()
+  const alert = useSelector((state: any) => state.ui.alert)
+  const onChallengeDescriptionChange = useCallback((value: string) => {
     setDescription(value);
   }, []);
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log('Submitting form', data)
+    if (!challengeDescription) {
+      setError('description', {
+        type: 'required',
+        message: 'Challenge description is required',
+      })
+    }
+    if (!code) {
+      setError('code', {
+        type: 'required',
+        message: 'Challenge code is required',
+      })
+    }
+    if(Object.keys(errors).length != 0) {
+      return
+    }
     data.description = challengeDescription
     data.code = {
       function_name: functionName,
@@ -79,18 +100,22 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
       inputs: tests.map((test) => ({name: test.name, type: test.type}))
     }
     data.tests = tests
+    if (challenge) {
+      data._id = challenge._id ;
+    }
     console.log(data)
     try {
-      if (isEdit) {
-        console.log('updating')
-        await axios.put('/api/challenges/' + challenge._id, data);
-      } else {
-        console.log('creating')
-        await axios.post('/api/challenges', data);
-      }
-      router.push('/');
+      const response = await submitChallenge(data, !isEdit)
+      dispatch(alertAction({
+        type: 'success',
+        message: response.message
+      }))
     } catch (error) {
       console.error(error)
+      dispatch(alertAction({
+        type: 'error',
+        message: 'Error happened'
+      }))
     }
   });
 
@@ -123,11 +148,11 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col">
-      
+    <div className="w-full h-full flex flex-col items-center">
+      {alert && <CodeCLAlert type={alert.type} message={alert.message}/>}
       <form 
-        onSubmit={onSubmit}
-        className="space-y-3 grid gap-2 md:grid-cols-2 h-full relative">
+        onSubmit={(data) => startTransition(() => onSubmit(data))}
+        className="space-y-3 grid gap-2 md:grid-cols-2 h-full w-full relative">
           
         <div className='md:col-span-1'>
           
@@ -184,10 +209,11 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
               <SimpleMdeReact 
                 id='description' 
                 value={challengeDescription} 
-                onChange={onChange} 
+                onChange={onChallengeDescriptionChange}
+                onFocus={() => clearErrors('description')}
               />
             </div>
-            {/* {errors.description && <span className='text-red-500'>{errors.description?.message}</span>} */}
+            {errors.description && <span className='text-red-500'>{errors.description?.message}</span>}
           </div>
         </div>
 
@@ -205,7 +231,7 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
               className="bg-white w-full p-2 border-gray-300 rounded-md shadow-sm focus:border-main focus:ring-main"
               onChange={(e) => setFunctionName(e.target.value)}
             />
-            {/* {errors.code?.function_name && <span className='text-red-500'>{errors.code?.function_name.message}</span>} */}
+            {errors.function_name && <span className='text-red-500'>{errors.function_name?.message}</span>}
           </div>
 
           <div >
@@ -225,9 +251,10 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
                   extensions={language == 'py' ? [python()] : [javascript()]}
                   className='min-h-[150px]'
                   onChange={(value: string) => setCode(value)}
+                  onFocus={() => clearErrors('code')}
                   style={{fontSize: `${fontSize}px`, height: '100%'}}
                 />
-              {/* {errors.code?.code_text && <span className='text-red-500'>{errors.code?.code_text?.message}</span>} */}
+              {errors.code && <span className='text-red-500'>{errors.code?.message?.toString()}</span>}
               </div>
           </div>
           <div className='min-h[300px] overflow-scroll'>
@@ -239,10 +266,14 @@ const ChallengeForm = ({ challenge }: ChallengeFormProps) => {
                 
               ><FaPlus /></div>
             </div>
-            <div className='flex flex-col gap-2 '>
-              {tests.map((test, idx) => {
-                return <TestCase key={idx} onRemoveTest={() => {onRemoveTest(idx)}} onUpdateTest={onUpdateTest(idx)} />
-              })}
+            <div>
+              <div className='flex flex-col gap-2 '>
+                {tests.map((test, idx) => {
+                  return <TestCase key={idx} onRemoveTest={() => {onRemoveTest(idx)}} onUpdateTest={onUpdateTest(idx)} />
+                })}
+              </div>
+              {errors.tests && <span className='text-red-500'>{errors.tests?.message?.toString()}</span>}
+
             </div>
           </div>
           <CreateChallengeButton 
